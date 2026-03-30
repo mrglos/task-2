@@ -23,3 +23,9 @@ variable "app_name" {
   type        = string
   default     = "inpost-web"
 }
+
+variable "machine_type" {
+  description = "The machine type for the web instances"
+  type        = string
+  default     = "e2-micro"
+}

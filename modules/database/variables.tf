@@ -30,3 +30,9 @@ variable "db_password" {
   type        = string
   sensitive   = true
 }
+
+variable "db_tier" {
+  description = "The machine type for the database instance"
+  type        = string
+  default     = "db-f1-micro"
+}

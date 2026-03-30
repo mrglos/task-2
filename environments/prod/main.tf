@@ -17,6 +17,7 @@ module "database" {
   region      = var.region
   network_id  = module.networking.network_id
   db_password = var.db_password
+  db_tier     = "db-custom-2-7680" # 2 vCPU, 7.5 GB RAM
 }
 
 # 3. Compute - application (Nginx, MIG, Load Balancer)
@@ -26,6 +27,7 @@ module "compute" {
   region     = var.region
   network_id = module.networking.network_id
   subnet_id  = module.networking.subnet_id
+  machine_type = "e2-standard-2"
 }
 
 # 4. Storage

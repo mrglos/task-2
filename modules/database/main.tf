@@ -29,7 +29,7 @@ resource "google_sql_database_instance" "instance" {
   depends_on = [google_service_networking_connection.private_vpc_connection]
 
   settings {
-    tier = "db-f1-micro"
+    tier = var.db_tier
     
     availability_type = "REGIONAL" 
 

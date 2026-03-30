@@ -9,7 +9,7 @@ resource "google_service_account" "web_sa" {
 resource "google_compute_instance_template" "web_template" {
   name_prefix  = "${var.app_name}-template-"
   project      = var.project_id
-  machine_type = "e2-micro"
+  machine_type = var.machine_type
   tags         = ["web-app"] # Tag, allows traffic from Firewall (Health Checks)
 
   disk {
@@ -58,7 +58,7 @@ resource "google_compute_health_check" "web_hc" {
   }
 }
 
-# 4. Regional instances group (HA - instances in rebions a, b, c)
+# 4. Regional instances group (HA - instances in regions a, b, c)
 resource "google_compute_region_instance_group_manager" "web_mig" {
   name               = "${var.app_name}-mig"
   project            = var.project_id
