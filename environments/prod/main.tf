@@ -16,7 +16,6 @@ module "database" {
   project_id  = var.project_id
   region      = var.region
   network_id  = module.networking.network_id
-  db_password = var.db_password
   db_tier     = "db-custom-2-7680" # 2 vCPU, 7.5 GB RAM
 }
 

@@ -30,11 +30,11 @@ W projekcie zaimplementowano zaawansowane mechanizmy bezpieczeństwa:
     ```
 2.  Sprawdź plan zmian:
     ```bash
-    terraform plan -var="project_id=YOUR_PROJECT_ID" -var="db_password=YOUR_SAFE_PASSWORD"
+    terraform plan -var="project_id=YOUR_PROJECT_ID"
     ```
 3.  Zaaplikuj infrastrukturę:
     ```bash
-    terraform apply -var="project_id=YOUR_PROJECT_ID" -var="db_password=YOUR_SAFE_PASSWORD"
+    terraform apply -var="project_id=YOUR_PROJECT_ID"
     ```
 
 Po zakończeniu, adres IP Load Balancera zostanie wyświetlony w sekcji `outputs`.

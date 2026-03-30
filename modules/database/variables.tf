@@ -25,12 +25,6 @@ variable "db_user" {
   default     = "inpost-admin"
 }
 
-variable "db_password" {
-  description = "Database password"
-  type        = string
-  sensitive   = true
-}
-
 variable "db_tier" {
   description = "The machine type for the database instance"
   type        = string
