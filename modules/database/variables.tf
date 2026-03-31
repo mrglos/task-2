@@ -19,14 +19,13 @@ variable "db_name" {
   default     = "inpost-db"
 }
 
-variable "db_user" {
-  description = "Database user"
-  type        = string
-  default     = "inpost-admin"
-}
-
 variable "db_tier" {
   description = "The machine type for the database instance"
   type        = string
   default     = "db-f1-micro"
+}
+
+variable "app_service_account_email" {
+  description = "The email of the compute service account that will connect to the DB"
+  type        = string
 }

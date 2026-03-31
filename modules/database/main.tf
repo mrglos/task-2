@@ -1,26 +1,4 @@
-# 1. Generate a random password for the database user
-resource "random_password" "db_password" {
-  length  = 12
-  special = true
-  # We exclude certain special characters that can cause issues in connection strings or require escaping.
-  override_special = "!@#$%^&*()-_=+[]{}|;:,.<>?/~"
-}
-
-# 2. Store the generated password in Secret Manager for secure retrieval by applications or administrators.
-resource "google_secret_manager_secret" "db_password_secret" {
-  secret_id = "${var.db_name}-db-password"
-  project   = var.project_id
-  replication {
-    auto {}
-  }
-}
-
-resource "google_secret_manager_secret_version" "db_password_secret_version" {
-  secret      = google_secret_manager_secret.db_password_secret.id
-  secret_data = random_password.db_password.result
-}
-
-# 3. Reserving a private IP range for Google's services (requirement for private Cloud SQL)
+# 1. Reserving a private IP range for Google's services (requirement for private Cloud SQL)
 resource "google_compute_global_address" "private_ip_address" {
   name          = "${var.db_name}-private-ip"
   project       = var.project_id
@@ -30,14 +8,14 @@ resource "google_compute_global_address" "private_ip_address" {
   network       = var.network_id
 }
 
-# 4. Creating a VPC Peering connection with Google's network
+# 2. Creating a VPC Peering connection with Google's network
 resource "google_service_networking_connection" "private_vpc_connection" {
   network                 = var.network_id
   service                 = "servicenetworking.googleapis.com"
   reserved_peering_ranges = [google_compute_global_address.private_ip_address.name]
 }
 
-# 5. Cloud SQL instance (PostgreSQL)
+# 3. Cloud SQL instance (PostgreSQL) with IAM auth
 resource "google_sql_database_instance" "instance" {
   name             = "${var.db_name}-instance"
   region           = var.region
@@ -60,19 +38,38 @@ resource "google_sql_database_instance" "instance" {
       ipv4_enabled    = false
       private_network = var.network_id
     }
+
+    # Enable IAM database authentication for secure access without passwords.
+    database_flags {
+      name  = "cloudsql.iam_authentication"
+      value = "on"
+    }
   }
 }
 
-# 6. Database and user creation
+# 4. Database and user (based on IAM) creation
 resource "google_sql_database" "database" {
   name     = var.db_name
   instance = google_sql_database_instance.instance.name
   project  = var.project_id
 }
 
-resource "google_sql_user" "users" {
-  name     = var.db_user
+resource "google_sql_user" "iam_user" {
+  name     = replace(var.app_service_account_email, ".gserviceaccount.com", "")
   instance = google_sql_database_instance.instance.name
-  password = random_password.db_password.result
+  type     = "CLOUD_IAM_SERVICE_ACCOUNT"
   project  = var.project_id
+}
+
+# 5. Granting the service account the necessary role to connect to the database
+resource "google_project_iam_member" "cloudsql_client" {
+  project = var.project_id
+  role    = "roles/cloudsql.client"
+  member  = "serviceAccount:${var.app_service_account_email}"
+}
+
+resource "google_project_iam_member" "cloudsql_instance_user" {
+  project = var.project_id
+  role    = "roles/cloudsql.instanceUser"
+  member  = "serviceAccount:${var.app_service_account_email}"
 }

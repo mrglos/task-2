@@ -12,20 +12,21 @@ module "networking" {
 
 # 2. Database - requires network for Private IP
 module "database" {
-  source      = "../../modules/database"
-  project_id  = var.project_id
-  region      = var.region
-  network_id  = module.networking.network_id
-  db_tier     = "db-custom-2-7680" # 2 vCPU, 7.5 GB RAM
+  source                    = "../../modules/database"
+  project_id                = var.project_id
+  region                    = var.region
+  network_id                = module.networking.network_id
+  db_tier                   = "db-custom-2-7680" # 2 vCPU, 7.5 GB RAM
+  app_service_account_email = module.compute.service_account_email
 }
 
 # 3. Compute - application (Nginx, MIG, Load Balancer)
 module "compute" {
-  source     = "../../modules/compute"
-  project_id = var.project_id
-  region     = var.region
-  network_id = module.networking.network_id
-  subnet_id  = module.networking.subnet_id
+  source       = "../../modules/compute"
+  project_id   = var.project_id
+  region       = var.region
+  network_id   = module.networking.network_id
+  subnet_id    = module.networking.subnet_id
   machine_type = "e2-standard-2"
 }
 

@@ -20,7 +20,7 @@ W projekcie zaimplementowano zaawansowane mechanizmy bezpieczeństwa:
 2.  **Cloud NAT:** Maszyny w prywatnych podsieciach mogą bezpiecznie pobierać aktualizacje bez bycia wystawionymi na bezpośredni ruch z internetu.
 3.  **Principle of Least Privilege:** Każda warstwa (Compute, DB) posiada dedykowane Service Account z minimalnymi wymaganymi uprawnieniami.
 4.  **Zero Trust Networking:** Reguły firewall ograniczają ruch wyłącznie do niezbędnych zakresów (np. Google Health Checks).
-5.  **Dynamic Secrets Management:** Hasło do bazy danych nie jest przechowywane w kodzie. Jest generowane dynamicznie podczas wdrożenia i bezpiecznie składowane w **Google Secret Manager**, skąd aplikacje mogą je pobierać poprzez API.
+5.  **Passwordless Authentication (IAM Auth):** Dostęp do bazy danych Cloud SQL odbywa się bez użycia statycznych haseł. Zastosowano autoryzację opartą na rolach IAM (CLOUD_IAM_SERVICE_ACCOUNT). Całkowicie eliminuje to ryzyko wycieku sekretów z pliku stanu Terraform (.tfstate) oraz kodu aplikacji.
 
 ## 🚀 Uruchomienie
 
@@ -50,7 +50,13 @@ gcloud auth application-default login
 3. Włącz wymagane usługi API w projekcie GCP (jeśli używasz czystego projektu):
 
    ```bash
-   gcloud services enable compute.googleapis.com servicenetworking.googleapis.com sqladmin.googleapis.com secretmanager.googleapis.com --project=${GCP_PROJECT_ID}
+   gcloud services enable \
+     compute.googleapis.com \
+     servicenetworking.googleapis.com \
+     sqladmin.googleapis.com \
+     iam.googleapis.com \
+     cloudresourcemanager.googleapis.com \
+     --project=${GCP_PROJECT_ID}
    ```
 
 4. Zainicjalizuj Terraform (używając utworzonego przed chwilą bucketu jako backendu):
